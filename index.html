@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Sender Add-in</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">Message Sender Add-in</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <form id="messageSenderForm" class="space-y-6">
+                <!-- Message Type Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+                    <select id="messageType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Message Type</option>
+                        <option value="email">Email Message</option>
+                        <option value="whatsapp">WhatsApp Message</option>
+                        <option value="text">Text Message</option>
+                    </select>
+                </div>
+
+                <!-- Template Download -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Template</label>
+                    <button type="button" id="downloadTemplate" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 flex items-center">
+                        <i class="fas fa-download mr-2"></i> Download Template
+                    </button>
+                </div>
+
+                <!-- File Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Excel File</label>
+                    <div class="flex items-center justify-center w-full">
+                        <label class="w-full flex flex-col items-center px-4 py-6 bg-white rounded-lg border-2 border-dashed border-gray-300 cursor-pointer hover:border-blue-500">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                            <span class="mt-2 text-gray-600">Click to upload or drag and drop</span>
+                            <input type="file" id="excelFile" class="hidden" accept=".xlsx,.xls">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Subject (Email only) -->
+                <div id="subjectField" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                    <input type="text" id="subject" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <!-- Greetings -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Greetings</label>
+                    <div class="border border-gray-300 rounded-md">
+                        <div class="bg-gray-50 px-3 py-2 border-b border-gray-300">
+                            <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                <option>Font Size</option>
+                                <option>12</option>
+                                <option>14</option>
+                                <option>16</option>
+                                <option>18</option>
+                            </select>
+                            <input type="color" class="w-8 h-8 p-1" title="Text Color">
+                        </div>
+                        <textarea id="greetings" class="w-full px-3 py-2 focus:outline-none" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <!-- Message Body -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message Body</label>
+                    <div class="border border-gray-300 rounded-md">
+                        <div class="bg-gray-50 px-3 py-2 border-b border-gray-300">
+                            <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Bold">
+                                <i class="fas fa-bold"></i>
+                            </button>
+                            <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Italic">
+                                <i class="fas fa-italic"></i>
+                            </button>
+                            <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Underline">
+                                <i class="fas fa-underline"></i>
+                            </button>
+                            <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                <option>Font Size</option>
+                                <option>12</option>
+                                <option>14</option>
+                                <option>16</option>
+                                <option>18</option>
+                            </select>
+                            <input type="color" class="w-8 h-8 p-1" title="Text Color">
+                        </div>
+                        <textarea id="messageBody" class="w-full px-3 py-2 focus:outline-none" rows="6"></textarea>
+                    </div>
+                </div>
+
+                <!-- Signature -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Signature</label>
+                    <div class="space-y-4">
+                        <div class="border border-gray-300 rounded-md">
+                            <div class="bg-gray-50 px-3 py-2 border-b border-gray-300">
+                                <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Bold">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Italic">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" class="text-gray-600 hover:text-gray-900 p-1" title="Underline">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <select class="text-sm border border-gray-300 rounded px-2 py-1">
+                                    <option>Font Size</option>
+                                    <option>12</option>
+                                    <option>14</option>
+                                    <option>16</option>
+                                    <option>18</option>
+                                </select>
+                                <input type="color" class="w-8 h-8 p-1" title="Text Color">
+                            </div>
+                            <textarea id="signatureText" class="w-full px-3 py-2 focus:outline-none" rows="2"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Or Upload Signature Image</label>
+                            <input type="file" id="signatureImage" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attachments -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Attachments</label>
+                    <input type="file" id="attachments" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-4">
+                    <button type="button" id="previewBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                        <i class="fas fa-eye mr-2"></i> Preview
+                    </button>
+                    <button type="button" id="draftBtn" class="flex-1 bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700">
+                        <i class="fas fa-save mr-2"></i> Draft
+                    </button>
+                    <button type="button" id="sendBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">
+                        <i class="fas fa-paper-plane mr-2"></i> Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center pb-3">
+                <h3 class="text-xl font-semibold">Message Preview</h3>
+                <button id="closePreview" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="previewContent" class="mt-4">
+                <!-- Preview content will be inserted here -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+</create_file>
+
+Now let's create the JavaScript file to handle the functionality:
+
+<create_file>
+<path>script.js</path>
+<content>
+// Message type templates
+const templates = {
+    email: ['First Name', 'Second Name', 'Mail ID'],
+    whatsapp: ['First Name', 'Second Name', 'Whatsapp Number'],
+    text: ['First Name', 'Second Name', 'Contact Number']
+};
+
+// Initialize when document is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const messageType = document.getElementById('messageType');
+    const subjectField = document.getElementById('subjectField');
+    const downloadTemplate = document.getElementById('downloadTemplate');
+    const previewBtn = document.getElementById('previewBtn');
+    const previewModal = document.getElementById('previewModal');
+    const closePreview = document.getElementById('closePreview');
+    const draftBtn = document.getElementById('draftBtn');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // Handle message type change
+    messageType.addEventListener('change', function() {
+        // Show/hide subject field for email
+        subjectField.classList.toggle('hidden', this.value !== 'email');
+    });
+
+    // Handle template download
+    downloadTemplate.addEventListener('click', function() {
+        const type = messageType.value;
+        if (!type) {
+            alert('Please select a message type first');
+            return;
+        }
+        
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([templates[type]]);
+        XLSX.utils.book_append_sheet(wb, ws, 'Template');
+        
+        // Save file
+        XLSX.writeFile(wb, `${type}_template.xlsx`);
+    });
+
+    // Handle file upload
+    document.getElementById('excelFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                console.log('Uploaded data:', jsonData);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    });
+
+    // Handle preview
+    previewBtn.addEventListener('click', function() {
+        const previewContent = document.getElementById('previewContent');
+        const greetings = document.getElementById('greetings').value;
+        const messageBody = document.getElementById('messageBody').value;
+        const signature = document.getElementById('signatureText').value;
+
+        previewContent.innerHTML = `
+            <div class="space-y-4">
+                <div>${greetings}</div>
+                <div>${messageBody}</div>
+                <div>${signature}</div>
+            </div>
+        `;
+        previewModal.classList.remove('hidden');
+    });
+
+    // Close preview modal
+    closePreview.addEventListener('click', function() {
+        previewModal.classList.add('hidden');
+    });
+
+    // Handle draft
+    draftBtn.addEventListener('click', function() {
+        // Save current form data to localStorage
+        const formData = {
+            messageType: messageType.value,
+            subject: document.getElementById('subject').value,
+            greetings: document.getElementById('greetings').value,
+            messageBody: document.getElementById('messageBody').value,
+            signature: document.getElementById('signatureText').value
+        };
+        localStorage.setItem('messageDraft', JSON.stringify(formData));
+        alert('Draft saved successfully!');
+    });
+
+    // Handle send
+    sendBtn.addEventListener('click', function() {
+        // Implement your sending logic here
+        alert('This feature would send the messages to all recipients in the uploaded Excel file.');
+    });
+
+    // Text formatting buttons
+    document.querySelectorAll('.fa-bold, .fa-italic, .fa-underline').forEach(button => {
+        button.addEventListener('click', function() {
+            const textarea = this.closest('.border-gray-300').querySelector('textarea');
+            const command = this.classList.contains('fa-bold') ? 'bold' :
+                          this.classList.contains('fa-italic') ? 'italic' : 'underline';
+            document.execCommand(command, false, null);
+            textarea.focus();
+        });
+    });
+
+    // Load draft if exists
+    const savedDraft = localStorage.getItem('messageDraft');
+    if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        messageType.value = draft.messageType;
+        document.getElementById('subject').value = draft.subject;
+        document.getElementById('greetings').value = draft.greetings;
+        document.getElementById('messageBody').value = draft.messageBody;
+        document.getElementById('signatureText').value = draft.signature;
+        
+        // Show/hide subject field based on message type
+        subjectField.classList.toggle('hidden', draft.messageType !== 'email');
+    }
+});
